@@ -17,6 +17,8 @@ from sklearn.naive_bayes import GaussianNB
 from sklearn.svm import SVC
 from sklearn.neural_network import MLPClassifier
 from sklearn.naive_bayes import BernoulliNB
+from scipy.stats import rankdata
+
 
 
 dados = pd.read_csv("./datasets/diabetes_012_health_indicators_BRFSS2015.csv")
@@ -54,7 +56,8 @@ for interation in tqdm(range(20), desc='Processing', unit='row'):
     print("\n\nDesempenho sobre o conjunto de teste")
     KNN = KNeighborsClassifier(n_neighbors=i,weights=j)
     KNN.fit(x_treino,y_treino)
-    opiniao = KNN.predict(x_teste)
+    opiniao_KNN = KNN.predict(x_teste)
+    prob_KNN = KNN.predict_proba(x_teste)
     accuracy_KNN = accuracy_score(y_teste, opiniao)
 
     print("TEMPO:", time.time()-t_init)
@@ -86,7 +89,8 @@ for interation in tqdm(range(20), desc='Processing', unit='row'):
     print("\n\nDesempenho sobre o conjunto de teste")
     AD = DecisionTreeClassifier(criterion=crit,max_depth=md,min_samples_leaf=msl,min_samples_split=mss,splitter=split)
     AD.fit(x_treino,y_treino)
-    opiniao = AD.predict(x_teste)
+    opiniao_AD = AD.predict(x_teste)
+    prob_AD = AD.predict_proba(x_teste)
     accuracy_AD = accuracy_score(y_teste, opiniao)
     
     
@@ -94,8 +98,9 @@ for interation in tqdm(range(20), desc='Processing', unit='row'):
     
     NB = BernoulliNB()
     NB.fit(x_treino,y_treino)
-    opiniao = NB.predict(x_teste)
-    accuracy_NB = accuracy_score(y_teste, opiniao)
+    opiniao_NB = NB.predict(x_teste)
+    prob_NB = NB.predict_proba(x_teste)
+    accuracy_NB = accuracy_score(y_teste, opiniao_NB)
 
     
     ################################################
@@ -149,8 +154,9 @@ for interation in tqdm(range(20), desc='Processing', unit='row'):
     # for hidden_layers in range(20):
     MLP = MLPClassifier(hidden_layer_sizes=(best_i_mlp,best_i_mlp,1), learning_rate=best_j_mlp, max_iter=best_k_mlp, activation=best_l_mlp)
     MLP.fit(x_treino,y_treino)
-    opiniao = MLP.predict(x_teste)
-    accuracy_MLP = accuracy_score(y_teste, opiniao)
+    opiniao_MLP = MLP.predict(x_teste)
+    prob_MLP = MLP.predict_proba(x_teste)
+    accuracy_MLP = accuracy_score(y_teste, opiniao_MLP)
 
     
     ################################################
@@ -175,8 +181,9 @@ for interation in tqdm(range(20), desc='Processing', unit='row'):
     print("\n\nDesempenho sobre o conjunto de teste")
     svm = SVC(kernel=best_kernel, C=best_C, random_state=42)
     svm.fit(x_treino, y_treino)
-    opiniao = svm.predict(x_teste)
-    accuracy_SVM = accuracy_score(y_teste, opiniao)
+    opiniao_SVM = svm.predict(x_teste)
+    prob_SVM = svm.predict_proba(x_teste)
+    accuracy_SVM = accuracy_score(y_teste, opiniao_SVM)
     print(f"Accuracy no conjunto de teste: {accuracy_SVM:.2f}")
     SVM = SVC()
     
@@ -185,12 +192,46 @@ for interation in tqdm(range(20), desc='Processing', unit='row'):
     # accuracy_SVM = accuracy_score(y_teste, opiniao)
 
 
+    # with open(log_filename, 'a+') as log_file:
+
+    #         log_file.write(interation, 'KNN', accuracy_KNN)
+    #         log_file.write(interation, 'NB', accuracy_NB)
+    #         log_file.write(interation, 'MLP', accuracy_MLP)
+    #         log_file.write(interation, 'AD', accuracy_AD)
+    #         log_file.write(interation, 'SVM', accuracy_SVM)
+
+    # pass
+
+    #soma 
+    soma_prob = prob_KNN + prob_AD + prob_NB + prob_MLP + prob_SVM
+    opiniao_soma = np.argmax(soma_prob, axis=1)
+    accuracy_soma = accuracy_score(y_teste, opiniao_soma)
+    print(f"Accuracy Regra da Soma: {accuracy_soma}")
+
+    #voto
+    opinioes = np.array([opiniao_KNN, opiniao_AD, opiniao_NB, opiniao_MLP, opiniao_SVM])
+    opiniao_voto_majoritario = np.apply_along_axis(lambda x: np.bincount(x).argmax(), axis=0, arr=opinioes) # nao sei se isso ta correto
+    accuracy_voto_majoritario = accuracy_score(y_teste, opiniao_voto_majoritario)
+    print(f"Accuracy Voto Majoritário: {accuracy_voto_majoritario}")
+
+    # Borda Count - GPT
+    ranks = np.array([rankdata(opiniao_KNN, method='min'),
+                      rankdata(opiniao_AD, method='min'),
+                      rankdata(opiniao_NB, method='min'),
+                      rankdata(opiniao_MLP, method='min'),
+                      rankdata(opiniao_SVM, method='min')])
+    soma_ranks = np.sum(ranks, axis=0)
+    opiniao_borda_count = np.argmax(soma_ranks, axis=0)
+    accuracy_borda_count = accuracy_score(y_teste, opiniao_borda_count)
+    print(f"Accuracy Borda Count: {accuracy_borda_count}")
+
+    # Log dos resultados
     with open(log_filename, 'a+') as log_file:
-
-            log_file.write(interation, 'KNN', accuracy_KNN)
-            log_file.write(interation, 'NB', accuracy_NB)
-            log_file.write(interation, 'MLP', accuracy_MLP)
-            log_file.write(interation, 'AD', accuracy_AD)
-            log_file.write(interation, 'SVM', accuracy_SVM)
-
-    pass
+        log_file.write(f"{interation}, KNN, {accuracy_KNN}\n")
+        log_file.write(f"{interation}, NB, {accuracy_NB}\n")
+        log_file.write(f"{interation}, MLP, {accuracy_MLP}\n")
+        log_file.write(f"{interation}, AD, {accuracy_AD}\n")
+        log_file.write(f"{interation}, SVM, {accuracy_SVM}\n")
+        log_file.write(f"{interation}, Soma, {accuracy_soma}\n")
+        log_file.write(f"{interation}, Voto Majoritário, {accuracy_voto_majoritario}\n")
+        log_file.write(f"{interation}, Borda Count, {accuracy_borda_count}\n")
