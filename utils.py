@@ -2,7 +2,7 @@ import itertools
 
 def gerar_arquiteturas():
     # Número de nodos por camada oculta
-    nodos = list(range(21, 43))
+    nodos = list(range(21, 43, 6))
     
     # Lista para armazenar as arquiteturas
     arquiteturas = []
