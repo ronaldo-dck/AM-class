@@ -66,7 +66,7 @@ for interation in tqdm(range(20), desc='Processing', unit='test'):
     
     accuracy_KNN = accuracy_score(y_teste, opiniao)
     with open(log_knn, 'a+') as log_file:
-        log_file.write(f'{Melhor_k},{Melhor_metrica}')
+        log_file.write(f'{interation},{Melhor_k},{Melhor_metrica}')
 
 ###########################################################################################################
 
@@ -99,7 +99,7 @@ for interation in tqdm(range(20), desc='Processing', unit='test'):
 
 
     with open(log_ad, 'a+') as log_file:
-        log_file.write(f'{crit},{md},{msl},{mss},{split}')
+        log_file.write(f'{interation},{crit},{md},{msl},{mss},{split}')
 
     
     ################################################
@@ -154,7 +154,7 @@ for interation in tqdm(range(20), desc='Processing', unit='test'):
     prob_opina = MLP.predict_proba(x_teste)
 
     with open(log_mlp, 'a+') as log_file:
-        log_file.write(f'{best_i_mlp},{best_learning_rate_mlp},{best_epocas_mlp},{best_func_mlp}')
+        log_file.write(f'{interation},{best_i_mlp},{best_learning_rate_mlp},{best_epocas_mlp},{best_func_mlp}')
 
 
 # ##########################################################################################################
@@ -182,7 +182,7 @@ for interation in tqdm(range(20), desc='Processing', unit='test'):
     prob_SVM = svm.predict_proba(x_teste)
     accuracy_SVM = accuracy_score(y_teste, opiniao_SVM)
     with open(log_svm, 'a+') as log_file:
-        log_file.write(f'{best_kernel},{best_C}')
+        log_file.write(f'{interation},{best_kernel},{best_C}')
 
 
 ##############################################################################
