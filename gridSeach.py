@@ -35,8 +35,8 @@ t_init = time.time()
 for interation in tqdm(range(20), desc='Processing', unit='test'):
     dados = shuffle(dados, random_state=interation)
 
-    X = np.array(dados.iloc[:, 1:])
-    Y = np.array(dados.iloc[:, 0:1]).ravel()
+    X = np.array(dados.iloc[:,:-1])
+    Y = np.array(dados.iloc[:,-1]).ravel()
     
     # x_treino, x_temp, y_treino, y_temp = train_test_split(
     #     X, Y, test_size=0.5, stratify=Y, random_state=interation)
