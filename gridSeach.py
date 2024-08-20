@@ -36,6 +36,7 @@ for interation in tqdm(range(20), desc='Processing', unit='test'):
     X = dados.iloc[:, 1:]
     Y = dados.iloc[:, 0:1]
 
+
     x_treino, x_temp, y_treino, y_temp = train_test_split(
         X, Y, test_size=0.5, stratify=Y, random_state=interation)
     x_validacao, x_teste, y_validacao, y_teste = train_test_split(
