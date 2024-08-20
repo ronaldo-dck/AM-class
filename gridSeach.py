@@ -17,7 +17,9 @@ from utils import gerar_arquiteturas
 
 
 
-dados = pd.read_csv("./datasets/diabetes_012_health_indicators_BRFSS2015.csv")
+# dados = pd.read_csv("./datasets/diabetes_012_health_indicators_BRFSS2015.csv")
+dados = pd.read_csv("./base_de_dados_normalizada.csv")
+
 
 log_filename = 'logs.csv'
 
@@ -33,14 +35,21 @@ t_init = time.time()
 for interation in tqdm(range(20), desc='Processing', unit='test'):
     dados = shuffle(dados, random_state=interation)
 
-    X = dados.iloc[:, 1:]
-    Y = dados.iloc[:, 0:1]
-
+    X = np.array(dados.iloc[:, 1:])
+    Y = np.array(dados.iloc[:, 0:1]).ravel()
+    
+    # x_treino, x_temp, y_treino, y_temp = train_test_split(
+    #     X, Y, test_size=0.5, stratify=Y, random_state=interation)
+    # x_validacao, x_teste, y_validacao, y_teste = train_test_split(
+    #     x_temp, y_temp, test_size=0.5, stratify=y_temp, random_state=interation)
+    X_reduzido, _, Y_reduzido, _ = train_test_split(
+    X, Y, test_size=0.90, stratify=Y, random_state=1)
 
     x_treino, x_temp, y_treino, y_temp = train_test_split(
-        X, Y, test_size=0.5, stratify=Y, random_state=interation)
+        X_reduzido, Y_reduzido, test_size=0.5, stratify=Y_reduzido, random_state=1)
+
     x_validacao, x_teste, y_validacao, y_teste = train_test_split(
-        x_temp, y_temp, test_size=0.5, stratify=y_temp, random_state=interation)
+        x_temp, y_temp, test_size=0.5, stratify=y_temp, random_state=1)
 
     
 
@@ -48,7 +57,7 @@ for interation in tqdm(range(20), desc='Processing', unit='test'):
 
     maior = -1
     for j in ("distance", "uniform"):
-        for i in range(1, 50):
+        for i in range(1, 51):
             KNN = KNeighborsClassifier(n_neighbors=i, weights=j)
             KNN.fit(x_treino, y_treino)
             opiniao = KNN.predict(x_validacao)
@@ -166,8 +175,8 @@ for interation in tqdm(range(20), desc='Processing', unit='test'):
 
     # Grid search nos parâmetros kernel e C
     for kernel in ("linear", "poly", "rbf", "sigmoid"):
-        for C in [0.1, 1, 10, 100, 1000]:
-            svm = SVC(kernel=kernel, C=C, random_state=42)
+        for C in [0.1, 1, 10, 100, 200]:
+            svm = SVC(kernel=kernel, C=C, probability=True, random_state=42)
             svm.fit(x_treino, y_treino)
             opiniao = svm.predict(x_validacao)
             Acc = accuracy_score(y_validacao, opiniao)
@@ -177,13 +186,13 @@ for interation in tqdm(range(20), desc='Processing', unit='test'):
                 best_kernel = kernel
                 best_C = C
 
-    svm = SVC(kernel=best_kernel, C=best_C, random_state=42)
+    svm = SVC(kernel=best_kernel, C=best_C, probability=True, random_state=42)
     svm.fit(x_treino, y_treino)
     opiniao_SVM = svm.predict(x_teste)
     prob_SVM = svm.predict_proba(x_teste)
     accuracy_SVM = accuracy_score(y_teste, opiniao_SVM)
     with open(log_svm, 'a+') as log_file:
-        log_file.write(f'{interation},{best_kernel},{best_C}')
+        log_file.write(f'{1},{best_kernel},{best_C}')
 
 
 ##############################################################################
