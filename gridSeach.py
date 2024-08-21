@@ -43,7 +43,7 @@ for interation in tqdm(range(20), desc='Processing', unit='test'):
     # x_validacao, x_teste, y_validacao, y_teste = train_test_split(
     #     x_temp, y_temp, test_size=0.5, stratify=y_temp, random_state=interation)
     X_reduzido, _, Y_reduzido, _ = train_test_split(
-    X, Y, test_size=0.90, stratify=Y, random_state=1)
+    X, Y, test_size=0.99, stratify=Y, random_state=1)
 
     x_treino, x_temp, y_treino, y_temp = train_test_split(
         X_reduzido, Y_reduzido, test_size=0.5, stratify=Y_reduzido, random_state=1)
@@ -76,7 +76,7 @@ for interation in tqdm(range(20), desc='Processing', unit='test'):
     
     accuracy_KNN = accuracy_score(y_teste, opiniao)
     with open(log_knn, 'a+') as log_file:
-        log_file.write(f'{interation},{Melhor_k},{Melhor_metrica}')
+        log_file.write(f'{interation},{Melhor_k},{Melhor_metrica}\n')
 
 ###########################################################################################################
 
@@ -109,7 +109,7 @@ for interation in tqdm(range(20), desc='Processing', unit='test'):
 
 
     with open(log_ad, 'a+') as log_file:
-        log_file.write(f'{interation},{crit},{md},{msl},{mss},{split}')
+        log_file.write(f'{interation},{crit},{md},{msl},{mss},{split}\n')
 
     
     ################################################
@@ -164,7 +164,7 @@ for interation in tqdm(range(20), desc='Processing', unit='test'):
     prob_opina = MLP.predict_proba(x_teste)
 
     with open(log_mlp, 'a+') as log_file:
-        log_file.write(f'{interation},{best_i_mlp},{best_learning_rate_mlp},{best_epocas_mlp},{best_func_mlp}')
+        log_file.write(f'{interation},{best_i_mlp},{best_learning_rate_mlp},{best_epocas_mlp},{best_func_mlp}\n')
 
 
 # ##########################################################################################################
@@ -175,7 +175,7 @@ for interation in tqdm(range(20), desc='Processing', unit='test'):
 
     # Grid search nos parâmetros kernel e C
     for kernel in ("linear", "poly", "rbf", "sigmoid"):
-        for C in [0.1, 1, 10, 100, 200]:
+        for C in [0.1, 1, 10, 100]: #retirei o 200
             svm = SVC(kernel=kernel, C=C, probability=True, random_state=42)
             svm.fit(x_treino, y_treino)
             opiniao = svm.predict(x_validacao)
@@ -192,7 +192,7 @@ for interation in tqdm(range(20), desc='Processing', unit='test'):
     prob_SVM = svm.predict_proba(x_teste)
     accuracy_SVM = accuracy_score(y_teste, opiniao_SVM)
     with open(log_svm, 'a+') as log_file:
-        log_file.write(f'{1},{best_kernel},{best_C}')
+        log_file.write(f'{1},{best_kernel},{best_C}\n')
 
 
 ##############################################################################
@@ -204,19 +204,21 @@ for interation in tqdm(range(20), desc='Processing', unit='test'):
     print(f"Accuracy Regra da Soma: {accuracy_soma}")
 
     #voto
-    opinioes = np.array([opiniao_KNN, opiniao_AD, opiniao_NB, opiniao_MLP, opiniao_SVM], dtype=int)
+    opinioes = np.array([opiniao_KNN, opiniao_AD, opiniao_NB, opiniao_MLP, opiniao_SVM], dtype=int) #acrescentou o dtype
     opiniao_voto_majoritario = np.apply_along_axis(lambda x: np.bincount(x).argmax(), axis=0, arr=opinioes)
     accuracy_voto_majoritario = accuracy_score(y_teste, opiniao_voto_majoritario)
     print(f"Accuracy Voto Majoritário: {accuracy_voto_majoritario}")
 
     # Borda Count - GPT ---- Me parece certo
     ranks = np.array([rankdata(opiniao_KNN, method='min'),
-                      rankdata(opiniao_AD, method='min'),
-                      rankdata(opiniao_NB, method='min'),
-                      rankdata(opiniao_MLP, method='min'),
-                      rankdata(opiniao_SVM, method='min')])
+                    rankdata(opiniao_AD, method='min'),
+                    rankdata(opiniao_NB, method='min'),
+                    rankdata(opiniao_MLP, method='min'),
+                    rankdata(opiniao_SVM, method='min')])
     soma_ranks = np.sum(ranks, axis=0)
-    opiniao_borda_count = np.argmax(soma_ranks, axis=0)
+    # opiniao_borda_count = np.argmax(soma_ranks, axis=0) antes
+    opiniao_borda_count = (soma_ranks == soma_ranks.min(axis=0)).astype(int) #novo
+
     accuracy_borda_count = accuracy_score(y_teste, opiniao_borda_count)
 
     # Log dos resultados

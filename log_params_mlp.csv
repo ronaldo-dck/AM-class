@@ -1,1 +1,3 @@
-0,[33, 21],adaptive,150,tanh
+0,[33, 33],invscaling,150,identity0,[33, 39],invscaling,100,identity0,[27],constant,200,relu0,[39, 21],invscaling,100,identity
+1,[33, 33],constant,200,identity
+1,[39, 39],invscaling,200,relu

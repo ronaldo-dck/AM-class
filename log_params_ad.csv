@@ -1,1 +1,4 @@
-0,gini,7,7,13,random
+0,entropy,6,10,8,random0,entropy,5,3,6,random0,entropy,3,5,11,random0,gini,5,5,11,random
+1,entropy,4,5,11,random
+1,gini,6,5,3,random
+2,gini,5,5,2,best
