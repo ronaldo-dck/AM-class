@@ -204,8 +204,8 @@ for interation in tqdm(range(20), desc='Processing', unit='test'):
     print(f"Accuracy Regra da Soma: {accuracy_soma}")
 
     #voto
-    opinioes = np.array([opiniao_KNN, opiniao_AD, opiniao_NB, opiniao_MLP, opiniao_SVM])
-    opiniao_voto_majoritario = np.apply_along_axis(lambda x: np.bincount(x).argmax(), axis=0, arr=opinioes) # nao sei se isso ta correto
+    opinioes = np.array([opiniao_KNN, opiniao_AD, opiniao_NB, opiniao_MLP, opiniao_SVM], dtype=int)
+    opiniao_voto_majoritario = np.apply_along_axis(lambda x: np.bincount(x).argmax(), axis=0, arr=opinioes)
     accuracy_voto_majoritario = accuracy_score(y_teste, opiniao_voto_majoritario)
     print(f"Accuracy Voto Majoritário: {accuracy_voto_majoritario}")
 
