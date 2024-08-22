@@ -43,7 +43,7 @@ for interation in tqdm(range(20), desc='Processing', unit='test'):
     # x_validacao, x_teste, y_validacao, y_teste = train_test_split(
     #     x_temp, y_temp, test_size=0.5, stratify=y_temp, random_state=interation)
     X_reduzido, _, Y_reduzido, _ = train_test_split(
-    X, Y, test_size=0.99, stratify=Y, random_state=1)
+    X, Y, test_size=0.9, stratify=Y, random_state=1)
 
     x_treino, x_temp, y_treino, y_temp = train_test_split(
         X_reduzido, Y_reduzido, test_size=0.5, stratify=Y_reduzido, random_state=1)
@@ -175,7 +175,7 @@ for interation in tqdm(range(20), desc='Processing', unit='test'):
 
     # Grid search nos parâmetros kernel e C
     for kernel in ("linear", "poly", "rbf", "sigmoid"):
-        for C in [0.1, 1, 10, 100]: #retirei o 200
+        for C in [0.1, 1, 10]: #retirei o 200
             svm = SVC(kernel=kernel, C=C, probability=True, random_state=42)
             svm.fit(x_treino, y_treino)
             opiniao = svm.predict(x_validacao)
@@ -230,7 +230,7 @@ for interation in tqdm(range(20), desc='Processing', unit='test'):
         log_file.write(f"{interation}, SVM, {accuracy_SVM}\n")
         log_file.write(f"{interation}, Soma, {accuracy_soma}\n")
         log_file.write(f"{interation}, Voto Majoritário, {accuracy_voto_majoritario}\n")
-        log_file.write(f"{interation}, Borda Count, {accuracy_borda_count}\n")
+        log_file.write(f"{interation}, Borda Count, {accuracy_borda_count}\n\n")
 
 
 
