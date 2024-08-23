@@ -1,20 +1,21 @@
-0,[27, 39],constant,100,relu
-1,[39, 27],constant,50,tanh
-2,[21, 39],adaptive,50,relu
-3,[39, 39],invscaling,200,relu
-4,[33, 33],invscaling,100,identity
-5,[39, 21],adaptive,150,tanh
-6,[27, 33],adaptive,100,identity
-7,[33, 21],constant,50,relu
-8,[33, 33],invscaling,200,tanh
-9,[39, 33],constant,200,logistic
-10,[33, 39],constant,200,relu
-11,[39, 33],constant,150,relu
-12,[21, 27],invscaling,150,tanh
-13,[21, 33],invscaling,100,relu
-14,[39],constant,200,relu
-15,[33, 27],constant,150,tanh
-16,[33, 21],invscaling,100,relu
-17,[27, 27],invscaling,50,identity
-18,[21, 33],invscaling,150,tanh
-19,[39, 33],constant,50,tanh
+i;arq;learning;epocas;func
+0;[27, 39];constant;100;relu
+1;[39, 27];constant;50;tanh
+2;[21, 39];adaptive;50;relu
+3;[39, 39];invscaling;200;relu
+4;[33, 33];invscaling;100;identity
+5;[39, 21];adaptive;150;tanh
+6;[27, 33];adaptive;100;identity
+7;[33, 21];constant;50;relu
+8;[33, 33];invscaling;200;tanh
+9;[39, 33];constant;200;logistic
+10;[33, 39];constant;200;relu
+11;[39, 33];constant;150;relu
+12;[21, 27];invscaling;150;tanh
+13;[21, 33];invscaling;100;relu
+14;[39];constant;200;relu
+15;[33, 27];constant;150;tanh
+16;[33, 21];invscaling;100;relu
+17;[27, 27];invscaling;50;identity
+18;[21, 33];invscaling;150;tanh
+19;[39, 33];constant;50;tanh

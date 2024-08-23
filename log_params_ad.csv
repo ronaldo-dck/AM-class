@@ -1,3 +1,4 @@
+i,criterion,max_depth,min_samples_leaf,min_samples_split,splitter
 0,entropy,6,4,3,random
 1,gini,5,10,12,random
 2,entropy,5,1,3,random
