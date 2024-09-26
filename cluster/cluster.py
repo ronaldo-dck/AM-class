@@ -45,6 +45,9 @@ mapeamento = {
 }
 y['poisonous'] = y['poisonous'].replace(mapeamento)
 
+y = y['poisonous']
+
+
 #############################################################################################
 
 logs_uri = "logs.csv"
@@ -72,36 +75,96 @@ logs_uri = "logs.csv"
 
 clusters_range = range(2, 7)
 max_iter_range = range(100, 1100, 100)
+eps_range = [i/10 for i in range(1,10)]
+min_samples = range(5, 50, 5)
+linkage = ['ward', 'complete', 'average', 'single']
 
-for n_clusters in clusters_range:
-    for max_iter in max_iter_range:
-        kmeans = KMeans(n_clusters=n_clusters,
-                        max_iter=max_iter, random_state=0)
-        kmeans.fit(X)
-        centro = kmeans.cluster_centers_
+
+def calculate_inertia(X, labels):
+    inertia = 0
+    for label in np.unique(labels):
+        cluster_points = X[labels == label]
+        centroid = np.mean(cluster_points, axis=0)
+        inertia += np.sum((cluster_points - centroid) ** 2)
+    return inertia
+### KMEANS
+# for n_clusters in clusters_range:
+#     for max_iter in max_iter_range:
+#         kmeans = KMeans(n_clusters=n_clusters,
+#                         max_iter=max_iter, random_state=0)
+#         kmeans.fit(X)
+#         centro = kmeans.cluster_centers_
     
+#         linha_dados = [
+#             'KMEANS',
+#             kmeans.n_clusters,  # Número de clusters
+#             kmeans.max_iter,  # Número máximo de iterações
+#             # Centros dos clusters (convertido para string para salvar no CSV)
+#             str(kmeans.cluster_centers_.tolist()),
+#             kmeans.inertia_,  # Soma dos quadrados das distâncias até o centróide mais próximo
+#             math.sqrt(kmeans.inertia_) / kmeans.n_clusters,  # Coesão
+#             metrics.silhouette_score(X, kmeans.labels_),  # Coeficiente de Silhueta
+#             metrics.rand_score(y, kmeans.labels_),  # Rand Score
+#             metrics.homogeneity_score(y, kmeans.labels_),  # Homogeneidade
+#             metrics.completeness_score(y, kmeans.labels_),  # Completude
+#             entropy(kmeans.labels_),  # Entropia
+#             str(contingency_matrix(y, kmeans.labels_).tolist())
+#         ]
+#         with open(logs_uri, 'a+') as log_file:
+#             writer = csv.writer(log_file)
+#             writer.writerow(linha_dados)
+
+
+
+### DBSCAM
+for eps in eps_range:
+    for min_s in min_samples:
+        dbscam = DBSCAN(eps=eps,min_samples=min_s)
+        dbscam.fit(X)
+
         linha_dados = [
-            kmeans.n_clusters,  # Número de clusters
-            kmeans.max_iter,  # Número máximo de iterações
+            'DBSCAN',
+            eps,  # Número de clusters
+            min_s,  # Número máximo de iterações
             # Centros dos clusters (convertido para string para salvar no CSV)
-            str(kmeans.cluster_centers_.tolist()),
-            kmeans.inertia_,  # Soma dos quadrados das distâncias até o centróide mais próximo
-            math.sqrt(kmeans.inertia_) / kmeans.n_clusters,  # Coesão
-            metrics.silhouette_score(X, kmeans.labels_),  # Coeficiente de Silhueta
-            metrics.rand_score(y, kmeans.labels_),  # Rand Score
-            metrics.homogeneity_score(y, kmeans.labels_),  # Homogeneidade
-            metrics.completeness_score(y, kmeans.labels_),  # Completude
-            entropy(kmeans.labels_),  # Entropia
-            # Matriz de contingência (convertido para string)
-            str(contingency_matrix(y, kmeans.labels_).tolist())
+            [], ##str(dbscam.cluster_centers_.tolist()),
+            float('-inf'),# dbscam.inertia_,  # Soma dos quadrados das distâncias até o centróide mais próximo
+            float('-inf'),#  math.sqrt(dbscam.inertia_) / dbscam.n_clusters,  # Coesão
+            float('-inf'),  # Coeficiente de Silhueta
+            metrics.rand_score(y, dbscam.labels_),  # Rand Score
+            metrics.homogeneity_score(y, dbscam.labels_),  # Homogeneidade
+            metrics.completeness_score(y, dbscam.labels_),  # Completude
+            entropy(dbscam.labels_),  # Entropia
+            str(contingency_matrix(y, dbscam.labels_).tolist())
         ]
+        with open(logs_uri, 'a+') as log_file:
+            writer = csv.writer(log_file)
+            writer.writerow(linha_dados)
 
-    with open(logs_uri, 'a+') as log_file:
-        writer = csv.writer(log_file)
-        print(writer)
-        writer.writerow(linha_dados)
+### AGNES
+for n_clusters in clusters_range:
+    for linker in linkage:
+        agnes = AgglomerativeClustering(n_clusters=n_clusters,
+                        linkage=linker)
+        agnes.fit(X)
+
+        linha_dados = [
+            'AGNES',
+            agnes.n_clusters,  # Número de clusters
+            linker,  # Número máximo de iterações
+            # Centros dos clusters (convertido para string para salvar no CSV)
+            [], ##str(agnes.cluster_centers_.tolist()),
+            float('-inf'),# agnes.inertia_,  # Soma dos quadrados das distâncias até o centróide mais próximo
+            float('-inf'),#  math.sqrt(agnes.inertia_) / agnes.n_clusters,  # Coesão
+            metrics.silhouette_score(X, agnes.labels_),  # Coeficiente de Silhueta
+            metrics.rand_score(y, agnes.labels_),  # Rand Score
+            metrics.homogeneity_score(y, agnes.labels_),  # Homogeneidade
+            metrics.completeness_score(y, agnes.labels_),  # Completude
+            entropy(agnes.labels_),  # Entropia
+            str(contingency_matrix(y, agnes.labels_).tolist())
+        ]
+        with open(logs_uri, 'a+') as log_file:
+            writer = csv.writer(log_file)
+            writer.writerow(linha_dados)
 
 
-y = y['poisonous']
-print(y)
-print(kmeans.labels_)
