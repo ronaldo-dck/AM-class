@@ -75,6 +75,8 @@ logs_uri = "logs.csv"
 
 clusters_range = range(2, 7)
 max_iter_range = range(100, 1100, 100)
+
+
 eps_range = [i/10 for i in range(1,10)]
 min_samples = range(5, 50, 5)
 linkage = ['ward', 'complete', 'average', 'single']
@@ -87,32 +89,36 @@ def calculate_inertia(X, labels):
         centroid = np.mean(cluster_points, axis=0)
         inertia += np.sum((cluster_points - centroid) ** 2)
     return inertia
-### KMEANS
-# for n_clusters in clusters_range:
-#     for max_iter in max_iter_range:
-#         kmeans = KMeans(n_clusters=n_clusters,
-#                         max_iter=max_iter, random_state=0)
-#         kmeans.fit(X)
-#         centro = kmeans.cluster_centers_
+
+
+## KMEANS
+for n_clusters in clusters_range:
+    for max_iter in max_iter_range:
+        kmeans = KMeans(n_clusters=n_clusters,
+                        max_iter=max_iter, random_state=0)
+        kmeans.fit(X)
+        centro = kmeans.cluster_centers_
     
-#         linha_dados = [
-#             'KMEANS',
-#             kmeans.n_clusters,  # Número de clusters
-#             kmeans.max_iter,  # Número máximo de iterações
-#             # Centros dos clusters (convertido para string para salvar no CSV)
-#             str(kmeans.cluster_centers_.tolist()),
-#             kmeans.inertia_,  # Soma dos quadrados das distâncias até o centróide mais próximo
-#             math.sqrt(kmeans.inertia_) / kmeans.n_clusters,  # Coesão
-#             metrics.silhouette_score(X, kmeans.labels_),  # Coeficiente de Silhueta
-#             metrics.rand_score(y, kmeans.labels_),  # Rand Score
-#             metrics.homogeneity_score(y, kmeans.labels_),  # Homogeneidade
-#             metrics.completeness_score(y, kmeans.labels_),  # Completude
-#             entropy(kmeans.labels_),  # Entropia
-#             str(contingency_matrix(y, kmeans.labels_).tolist())
-#         ]
-#         with open(logs_uri, 'a+') as log_file:
-#             writer = csv.writer(log_file)
-#             writer.writerow(linha_dados)
+        linha_dados = [
+            'KMEANS',
+            kmeans.n_clusters,  # Número de clusters
+            kmeans.max_iter,  # Número máximo de iterações
+            # Centros dos clusters (convertido para string para salvar no CSV)
+            str(kmeans.cluster_centers_.tolist()),
+            kmeans.inertia_,  # Soma dos quadrados das distâncias até o centróide mais próximo
+            math.sqrt(kmeans.inertia_) / kmeans.n_clusters,  # Coesão
+            metrics.silhouette_score(X, kmeans.labels_),  # Coeficiente de Silhueta
+            metrics.rand_score(y, kmeans.labels_),  # Rand Score
+            metrics.homogeneity_score(y, kmeans.labels_),  # Homogeneidade
+            metrics.completeness_score(y, kmeans.labels_),  # Completude
+            entropy(kmeans.labels_),  # Entropia
+            str(contingency_matrix(y, kmeans.labels_).tolist())
+        ]
+        with open(logs_uri, 'a+') as log_file:
+            writer = csv.writer(log_file)
+            print(linha_dados)
+            
+            writer.writerow(linha_dados)
 
 
 
@@ -139,6 +145,7 @@ for eps in eps_range:
         ]
         with open(logs_uri, 'a+') as log_file:
             writer = csv.writer(log_file)
+            print(linha_dados)
             writer.writerow(linha_dados)
 
 ### AGNES
@@ -165,6 +172,5 @@ for n_clusters in clusters_range:
         ]
         with open(logs_uri, 'a+') as log_file:
             writer = csv.writer(log_file)
+            print(linha_dados)
             writer.writerow(linha_dados)
-
-
