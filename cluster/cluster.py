@@ -133,7 +133,7 @@ def calculate_cohesion(X, labels):
     return cohesion / len(np.unique(labels))
 
 
-def calculate_metrics(method_name, labels, X, y, n_clusters=None, centroids=None):
+def calculate_metrics(method_name, labels, X, y, n_clusters=None, centroids=None, var1=None, var2=None):
     """
     Função central para calcular todas as métricas, adaptando para métodos onde inércia e coesão não existem.
     """
@@ -165,7 +165,9 @@ def calculate_metrics(method_name, labels, X, y, n_clusters=None, centroids=None
     
     linha_dados = [
         method_name,
-        n_clusters if n_clusters else np.unique(labels),
+        n_clusters if n_clusters else len(np.unique(labels)),
+        var1,
+        var2,
         inertia if inertia else '-',
         cohesion if cohesion else '-',
         silhouette if silhouette else '-',
@@ -182,20 +184,22 @@ def calculate_metrics(method_name, labels, X, y, n_clusters=None, centroids=None
         writer.writerow(linha_dados)
 
 
-# KMEANS
-for n_clusters in clusters_range:
-    for max_iter in max_iter_range:
-        kmeans = KMeans(n_clusters=n_clusters, max_iter=max_iter, random_state=0)
-        kmeans.fit(X)
+# # KMEANS
+# for n_clusters in clusters_range:
+#     for max_iter in max_iter_range:
+#         kmeans = KMeans(n_clusters=n_clusters, max_iter=max_iter, random_state=0)
+#         kmeans.fit(X)
         
-        calculate_metrics(
-            method_name='KMEANS',
-            labels=kmeans.labels_,
-            X=X,
-            y=y,
-            n_clusters=kmeans.n_clusters,
-            centroids=str(kmeans.cluster_centers_.tolist())
-        )
+#         calculate_metrics(
+#             method_name='KMEANS',
+#             labels=kmeans.labels_,
+#             X=X,
+#             y=y,
+#             n_clusters=kmeans.n_clusters,
+#             centroids=str(kmeans.cluster_centers_.tolist()),
+#             var1=n_clusters,
+#             var2=max_iter
+#         )
 
 # DBSCAN
 for eps in eps_range:
@@ -207,7 +211,9 @@ for eps in eps_range:
             method_name='DBSCAN',
             labels=dbscan.labels_,
             X=X,
-            y=y
+            y=y,
+            var1=eps,
+            var2=min_s
         )
 
 # AGNES
@@ -221,5 +227,7 @@ for n_clusters in clusters_range:
             labels=agnes.labels_,
             X=X,
             y=y,
-            n_clusters=agnes.n_clusters
+            n_clusters=agnes.n_clusters,
+            var1=n_clusters,
+            var2=linker
         )
