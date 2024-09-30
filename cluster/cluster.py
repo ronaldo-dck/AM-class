@@ -26,6 +26,7 @@ y = mushroom.data.targets
 
 
 X = pd.DataFrame(X)
+X = X.drop(columns='veil-type')
 y = pd.DataFrame(y)
 
 
@@ -50,7 +51,7 @@ y = y['poisonous']
 
 #############################################################################################
 
-logs_uri = "logs.csv"
+logs_uri = "logs2.csv"
 
 
 """
@@ -77,100 +78,148 @@ clusters_range = range(2, 7)
 max_iter_range = range(100, 1100, 100)
 
 
-eps_range = [i/10 for i in range(1,10)]
-min_samples = range(5, 50, 5)
+eps_range = [i*10 for i in range(1,10)]
+print(eps_range)
+min_samples = range(50, 501, 50)
 linkage = ['ward', 'complete', 'average', 'single']
 
 
-def calculate_inertia(X, labels):
+def calculate_inertia(data, labels):
+    """
+    Calcula a inércia (soma de quadrados intra-grupo) para um conjunto de dados.
+
+    Parameters:
+    data (numpy.ndarray): Matriz de dados (n_samples x n_features).
+    labels (numpy.ndarray): Rótulos dos grupos (1D array com o mesmo número de amostras que data).
+
+    Returns:
+    float: A inércia total do agrupamento.
+    dict: Inércia de cada grupo.
+    """
     inertia = 0
-    for label in np.unique(labels):
-        cluster_points = X[labels == label]
-        centroid = np.mean(cluster_points, axis=0)
-        inertia += np.sum((cluster_points - centroid) ** 2)
+    inertia_per_group = {}
+    
+    # Obter os rótulos únicos
+    unique_labels = np.unique(labels)
+    
+    for label in unique_labels:
+        # Selecionar os pontos pertencentes ao grupo atual
+        group_points = data[labels == label]
+        
+        # Calcular o centróide do grupo
+        centroid = np.mean(group_points, axis=0)
+        
+        # Calcular a inércia para o grupo
+        group_inertia = np.sum(np.linalg.norm(group_points - centroid, axis=1) ** 2)
+        
+        # Adicionar à inércia total
+        inertia += group_inertia
+        
+        # Armazenar a inércia do grupo
+        inertia_per_group[label] = group_inertia
     return inertia
 
+def calculate_cohesion(X, labels):
+    """
+    Calcula uma coesão alternativa baseada nas distâncias dentro dos clusters.
+    """
+    cohesion = 0
+    for label in np.unique(labels):
+        if label == -1:  # Ignorar ruído do DBSCAN (rótulo -1)
+            continue
+        cluster_points = X[labels == label]
+        centroid = np.mean(cluster_points, axis=0)
+        cohesion += np.sum(np.linalg.norm(cluster_points - centroid, axis=1))
+    return cohesion / len(np.unique(labels))
 
-## KMEANS
+
+def calculate_metrics(method_name, labels, X, y, n_clusters=None, centroids=None):
+    """
+    Função central para calcular todas as métricas, adaptando para métodos onde inércia e coesão não existem.
+    """
+    # Calcula inércia (ou valor análogo) e coesão
+    inertia = calculate_inertia(X, labels)
+    cohesion = calculate_cohesion(X, labels)
+
+    # Calcula Silhouette Score (somente se houver mais de um cluster)
+    silhouette = None
+    if len(np.unique(labels)) > 1:
+        silhouette = metrics.silhouette_score(X, labels)
+        print(silhouette)
+    
+    # Coleta as demais métricas
+    rand_score = metrics.rand_score(y, labels)
+    homogeneity = metrics.homogeneity_score(y, labels)
+    completeness = metrics.completeness_score(y, labels)
+
+    # Cálculo da entropia
+    if len(np.unique(labels)) > 1:  # Verifica se há mais de um cluster
+        # Calcula a frequência de rótulos
+        value_counts = np.bincount(labels[labels != -1])  # Ignora rótulos de ruído
+        probabilities = value_counts / np.sum(value_counts)
+        ent = entropy(probabilities)
+    else:
+        ent = 0  # Ou outro valor que faça sentido no contexto
+
+    cont_matrix = str(contingency_matrix(y, labels).tolist())
+    
+    linha_dados = [
+        method_name,
+        n_clusters if n_clusters else np.unique(labels),
+        inertia if inertia else '-',
+        cohesion if cohesion else '-',
+        silhouette if silhouette else '-',
+        rand_score,
+        homogeneity,
+        completeness,
+        ent,
+        cont_matrix
+    ]
+    
+    with open(logs_uri, 'a+') as log_file:
+        writer = csv.writer(log_file)
+        print(linha_dados)
+        writer.writerow(linha_dados)
+
+
+# KMEANS
 for n_clusters in clusters_range:
     for max_iter in max_iter_range:
-        kmeans = KMeans(n_clusters=n_clusters,
-                        max_iter=max_iter, random_state=0)
+        kmeans = KMeans(n_clusters=n_clusters, max_iter=max_iter, random_state=0)
         kmeans.fit(X)
-        centro = kmeans.cluster_centers_
-    
-        linha_dados = [
-            'KMEANS',
-            kmeans.n_clusters,  # Número de clusters
-            kmeans.max_iter,  # Número máximo de iterações
-            # Centros dos clusters (convertido para string para salvar no CSV)
-            str(kmeans.cluster_centers_.tolist()),
-            kmeans.inertia_,  # Soma dos quadrados das distâncias até o centróide mais próximo
-            math.sqrt(kmeans.inertia_) / kmeans.n_clusters,  # Coesão
-            metrics.silhouette_score(X, kmeans.labels_),  # Coeficiente de Silhueta
-            metrics.rand_score(y, kmeans.labels_),  # Rand Score
-            metrics.homogeneity_score(y, kmeans.labels_),  # Homogeneidade
-            metrics.completeness_score(y, kmeans.labels_),  # Completude
-            entropy(kmeans.labels_),  # Entropia
-            str(contingency_matrix(y, kmeans.labels_).tolist())
-        ]
-        with open(logs_uri, 'a+') as log_file:
-            writer = csv.writer(log_file)
-            print(linha_dados)
-            
-            writer.writerow(linha_dados)
+        
+        calculate_metrics(
+            method_name='KMEANS',
+            labels=kmeans.labels_,
+            X=X,
+            y=y,
+            n_clusters=kmeans.n_clusters,
+            centroids=str(kmeans.cluster_centers_.tolist())
+        )
 
-
-
-### DBSCAM
+# DBSCAN
 for eps in eps_range:
     for min_s in min_samples:
-        dbscam = DBSCAN(eps=eps,min_samples=min_s)
-        dbscam.fit(X)
+        dbscan = DBSCAN(eps=eps, min_samples=min_s)
+        dbscan.fit(X)
+        
+        calculate_metrics(
+            method_name='DBSCAN',
+            labels=dbscan.labels_,
+            X=X,
+            y=y
+        )
 
-        linha_dados = [
-            'DBSCAN',
-            eps,  # Número de clusters
-            min_s,  # Número máximo de iterações
-            # Centros dos clusters (convertido para string para salvar no CSV)
-            [], ##str(dbscam.cluster_centers_.tolist()),
-            float('-inf'),# dbscam.inertia_,  # Soma dos quadrados das distâncias até o centróide mais próximo
-            float('-inf'),#  math.sqrt(dbscam.inertia_) / dbscam.n_clusters,  # Coesão
-            float('-inf'),  # Coeficiente de Silhueta
-            metrics.rand_score(y, dbscam.labels_),  # Rand Score
-            metrics.homogeneity_score(y, dbscam.labels_),  # Homogeneidade
-            metrics.completeness_score(y, dbscam.labels_),  # Completude
-            entropy(dbscam.labels_),  # Entropia
-            str(contingency_matrix(y, dbscam.labels_).tolist())
-        ]
-        with open(logs_uri, 'a+') as log_file:
-            writer = csv.writer(log_file)
-            print(linha_dados)
-            writer.writerow(linha_dados)
-
-### AGNES
+# AGNES
 for n_clusters in clusters_range:
     for linker in linkage:
-        agnes = AgglomerativeClustering(n_clusters=n_clusters,
-                        linkage=linker)
+        agnes = AgglomerativeClustering(n_clusters=n_clusters, linkage=linker)
         agnes.fit(X)
-
-        linha_dados = [
-            'AGNES',
-            agnes.n_clusters,  # Número de clusters
-            linker,  # Número máximo de iterações
-            # Centros dos clusters (convertido para string para salvar no CSV)
-            [], ##str(agnes.cluster_centers_.tolist()),
-            float('-inf'),# agnes.inertia_,  # Soma dos quadrados das distâncias até o centróide mais próximo
-            float('-inf'),#  math.sqrt(agnes.inertia_) / agnes.n_clusters,  # Coesão
-            metrics.silhouette_score(X, agnes.labels_),  # Coeficiente de Silhueta
-            metrics.rand_score(y, agnes.labels_),  # Rand Score
-            metrics.homogeneity_score(y, agnes.labels_),  # Homogeneidade
-            metrics.completeness_score(y, agnes.labels_),  # Completude
-            entropy(agnes.labels_),  # Entropia
-            str(contingency_matrix(y, agnes.labels_).tolist())
-        ]
-        with open(logs_uri, 'a+') as log_file:
-            writer = csv.writer(log_file)
-            print(linha_dados)
-            writer.writerow(linha_dados)
+        
+        calculate_metrics(
+            method_name='AGNES',
+            labels=agnes.labels_,
+            X=X,
+            y=y,
+            n_clusters=agnes.n_clusters
+        )
