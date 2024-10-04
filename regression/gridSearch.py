@@ -10,7 +10,6 @@ from sklearn.metrics import mean_squared_error
 from sklearn.ensemble import GradientBoostingRegressor
 from sklearn.svm import SVR
 from sklearn.neural_network import MLPRegressor
-from scipy.stats import rankdata
 from utils import gerar_arquiteturas
 from sklearn.ensemble import RandomForestRegressor
 
@@ -210,7 +209,7 @@ for interation in tqdm(range(20), desc='Processing', unit='test'):
     best_min_samples_split_gb = 0
     best_min_samples_leaf_gb = 0
 
-    for n_estimators in range(100, 1501, 100):
+    for n_estimators in range(100, 1501, 100): # pelo que eu li é melhor ser um valor maior, GB consegue trabalhar bem contra o overfitting
         for loss in ["squared_error", "absolute_error", "huber", "quantile"]:
             for max_depth in [3, 5, 10, 15]:  # Depth padrão para GB é geralmente menor que RF
                 for learning_rate in range(0.01, 0.21, 0.01):
@@ -238,7 +237,6 @@ for interation in tqdm(range(20), desc='Processing', unit='test'):
                                 best_min_samples_split_gb = min_samples_split
                                 best_min_samples_leaf_gb = min_samples_leaf
 
-    # Treinando o modelo final com os melhores parâmetros
     gb_final = GradientBoostingRegressor(n_estimators=best_n_estimators_gb,
                                         loss=best_loss,
                                         max_depth=best_max_depth_gb,
