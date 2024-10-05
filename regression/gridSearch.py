@@ -56,7 +56,7 @@ for interation in tqdm(range(20), desc='Processing', unit='test'):
     
 
 ##########################################################################################################
-
+    print("KNN")
     menor = np.inf
     for j in ("distance", "uniform"):
         for i in range(1, 51):
@@ -81,7 +81,7 @@ for interation in tqdm(range(20), desc='Processing', unit='test'):
         log_file.write(f'{interation},{Melhor_k},{Melhor_metrica}\n')
 
 ###########################################################################################################
-
+    print("MLP")
     best_mlp_rmse = np.inf
     best_i_mlp = 0
     best_j_mlp = 0
@@ -129,7 +129,7 @@ for interation in tqdm(range(20), desc='Processing', unit='test'):
 # ##########################################################################################################
     ## SVM
 
-
+    print("SVM")
     menor = np.inf
 
     # Grid search nos parâmetros kernel e C
@@ -163,7 +163,7 @@ for interation in tqdm(range(20), desc='Processing', unit='test'):
     best_max_depth = 0
     best_min_samples_split = 0
     best_min_samples_leaf = 0
-
+    print("RF")
     for n_estimators in [50, 100, 150, 200]:
         print(time.time())
         for criterion in ['squared_error', 'absolute_error', 'friedman_mse', 'poisson']:
@@ -214,7 +214,7 @@ for interation in tqdm(range(20), desc='Processing', unit='test'):
     best_learning_rate = 0
     best_min_samples_split_gb = 0
     best_min_samples_leaf_gb = 0
-
+    print("GB")
     for n_estimators in [100, 250, 500, 1000, 1500]: # pelo que eu li é melhor ser um valor maior, GB consegue trabalhar bem contra o overfitting
         print(time.time() - t_init)
         for loss in ["squared_error", "absolute_error", "quantile"]:
