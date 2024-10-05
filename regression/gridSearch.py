@@ -25,15 +25,15 @@ warnings.filterwarnings("ignore", category=ConvergenceWarning)
 dados = pd.read_csv("./datasets/house_price_regression_dataset.csv")
 
 
-log_filename = 'logs.csv'
+log_filename = './logs/logs.csv'
 
 
-log_knn = 'log_params_knn.csv'
-log_mlp = 'log_params_mlp.csv'
-log_svm = 'log_params_svm.csv'
-log_rf = 'log_params_rf.csv'
-log_gb = 'log_params_gb.csv'
-log_lr = 'log_params_lr.csv'
+log_knn = './logs/knn/log_params_knn.csv'
+log_mlp = './logs/mlp/log_params_mlp.csv'
+log_svm = './logs/svm/log_params_svm.csv'
+log_rf = './logs/rf/log_params_rf.csv'
+log_gb = './logs/gb/log_params_gb.csv'
+log_lr = './logs/linear/log_params_lr.csv'
 
 
 
@@ -215,7 +215,7 @@ for interation in tqdm(range(20), desc='Processing', unit='test'):
     best_min_samples_split_gb = 0
     best_min_samples_leaf_gb = 0
 
-    for n_estimators in [100, 250, 500, 750, 1000, 1250, 1500]: # pelo que eu li é melhor ser um valor maior, GB consegue trabalhar bem contra o overfitting
+    for n_estimators in [100, 250, 500, 1000, 1500]: # pelo que eu li é melhor ser um valor maior, GB consegue trabalhar bem contra o overfitting
         print(time.time() - t_init)
         for loss in ["squared_error", "absolute_error", "quantile"]:
             for max_depth in [3, 5, 10]:  # Depth padrão para GB é geralmente menor que RF
