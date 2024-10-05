@@ -1,0 +1,11 @@
+0,[7, 14, 14],constant,100,identity
+1,[7, 7, 7],adaptive,150,identity
+2,[7, 14, 14],constant,200,identity
+3,[7, 14, 14],constant,200,identity
+4,[7, 14, 14],adaptive,200,identity
+5,[7, 14, 14],invscaling,200,identity
+6,[7, 7, 7],adaptive,200,identity
+7,[7, 14, 14],constant,150,identity
+8,[7, 14, 7],constant,200,identity
+9,[7, 14, 7],invscaling,150,identity
+0,[7, 14, 14],constant,200,identity
