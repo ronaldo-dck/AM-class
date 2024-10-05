@@ -13,6 +13,7 @@ from sklearn.neural_network import MLPRegressor
 from utils import gerar_arquiteturas
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.linear_model import LinearRegression
+from sklearn.metrics import mean_absolute_error
 
 import warnings
 from sklearn.exceptions import ConvergenceWarning
@@ -32,6 +33,7 @@ log_mlp = 'log_params_mlp.csv'
 log_svm = 'log_params_svm.csv'
 log_rf = 'log_params_rf.csv'
 log_gb = 'log_params_gb.csv'
+log_lr = 'log_params_lr.csv'
 
 
 
@@ -72,7 +74,7 @@ for interation in tqdm(range(20), desc='Processing', unit='test'):
     KNN = KNeighborsRegressor(n_neighbors=Melhor_k,weights=Melhor_metrica)
     KNN.fit(x_treino,y_treino)
     opiniao_KNN  = KNN.predict(x_teste)
-    
+    mae_KNN = mean_absolute_error(y_teste, opiniao_KNN)
     rmse_KNN = np.sqrt(mean_squared_error(y_teste, opiniao))       
 
     with open(log_knn, 'a+') as log_file:
@@ -120,7 +122,7 @@ for interation in tqdm(range(20), desc='Processing', unit='test'):
     opiniao_MLP = MLP.predict(x_teste)
 
     rmse_MLP = np.sqrt(mean_squared_error(y_teste, opiniao_MLP))
-
+    mae_MLP = mean_absolute_error(y_teste, opiniao_MLP)
     with open(log_mlp, 'a+') as log_file:
         log_file.write(f'{interation},{best_i_mlp},{best_learning_rate_mlp},{best_epocas_mlp},{best_func_mlp}\n')
 
@@ -148,6 +150,7 @@ for interation in tqdm(range(20), desc='Processing', unit='test'):
     svm.fit(x_treino, y_treino)
     opiniao_SVM = svm.predict(x_teste)
     rmse_SVM = np.sqrt(mean_squared_error(y_teste, opiniao_SVM))
+    mae_SVM = mean_absolute_error(y_teste, opiniao_SVM)
     with open(log_svm, 'a+') as log_file:
         log_file.write(f'{1},{best_kernel},{best_C}\n')
 
@@ -197,6 +200,7 @@ for interation in tqdm(range(20), desc='Processing', unit='test'):
     rf_final.fit(x_treino, y_treino)
     opiniao_rf = rf_final.predict(x_teste)
     rmse_rf_final = np.sqrt(mean_squared_error(y_teste, opiniao_rf))
+    mae_rf_final = mean_absolute_error(y_teste, opiniao_rf)
 
     with open(log_rf, 'a+') as log_file:
         log_file.write(f'{interation},{best_n_estimators},{best_criterion},{best_max_depth},{best_min_samples_split},{best_min_samples_leaf}\n')
@@ -211,7 +215,7 @@ for interation in tqdm(range(20), desc='Processing', unit='test'):
     best_min_samples_split_gb = 0
     best_min_samples_leaf_gb = 0
 
-    for n_estimators in range(100, 1501, 100): # pelo que eu li é melhor ser um valor maior, GB consegue trabalhar bem contra o overfitting
+    for n_estimators in [100, 250, 500, 750, 1000, 1250, 1500]: # pelo que eu li é melhor ser um valor maior, GB consegue trabalhar bem contra o overfitting
         print(time.time() - t_init)
         for loss in ["squared_error", "absolute_error", "quantile"]:
             for max_depth in [3, 5, 10]:  # Depth padrão para GB é geralmente menor que RF
@@ -252,6 +256,7 @@ for interation in tqdm(range(20), desc='Processing', unit='test'):
     gb_final.fit(x_treino, y_treino)
     opiniao_gb = gb_final.predict(x_teste)
     rmse_gb_final = np.sqrt(mean_squared_error(y_teste, opiniao_gb))
+    mae_gb_final = mean_absolute_error(y_teste, opiniao_gb)
 
     with open(log_gb, 'a+') as log_file:
         log_file.write(f'{interation},{best_n_estimators_gb},{best_loss},{best_max_depth_gb},{best_learning_rate},{best_min_samples_split_gb},{best_min_samples_leaf_gb}\n')
@@ -265,16 +270,16 @@ for interation in tqdm(range(20), desc='Processing', unit='test'):
     rlm_final.fit(x_treino, y_treino)
     opiniao_rlm = rlm_final.predict(x_teste)
     rmse_rlm_final = np.sqrt(mean_squared_error(y_teste, opiniao_rlm))
-
+    mae_rlm_final = mean_absolute_error(y_teste, opiniao_rlm)
 
 
     with open(log_filename, 'a+') as log_file:
-        log_file.write(f"{interation}, KNR, {rmse_KNN}\n")
-        log_file.write(f"{interation}, MLP, {rmse_MLP}\n")
-        log_file.write(f"{interation}, SVM, {rmse_SVM}\n")
-        log_file.write(f"{interation}, RF, {rmse_rf_final}\n")
-        log_file.write(f"{interation}, GB, {rmse_gb_final}\n")
-        log_file.write(f"{interation}, RLM, {rmse_rlm_final}\n")
+        log_file.write(f"{interation}, KNR, {rmse_KNN}, {mae_KNN}\n")
+        log_file.write(f"{interation}, MLP, {rmse_MLP}, {mae_MLP}\n")
+        log_file.write(f"{interation}, SVM, {rmse_SVM}, {mae_SVM}\n")
+        log_file.write(f"{interation}, RF, {rmse_rf_final}, {mae_rf_final}\n")
+        log_file.write(f"{interation}, GB, {rmse_gb_final}, {mae_gb_final}\n")
+        log_file.write(f"{interation}, RLM, {rmse_rlm_final}, {mae_rlm_final}\n")
         
 
 
