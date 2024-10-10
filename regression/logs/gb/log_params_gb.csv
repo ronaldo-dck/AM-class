@@ -1,3 +1,4 @@
+Iteration, N Estimators, Loss, Max Depth, Learning Rate, Min Samples Split, Min Samples Leaf
 0,1000,squared_error,3,0.1,2,4
 1,1000,squared_error,3,0.1,5,1
 2,500,squared_error,3,0.1,5,2

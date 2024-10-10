@@ -1,0 +1,92 @@
+\documentclass{article}
+\usepackage{booktabs}
+\begin{document}
+
+\section{Resultados dos Testes Estatísticos}
+
+\subsection{Teste de Kruskal-Wallis}
+\begin{table}[h]
+\centering
+\begin{tabular}{|c|c|c|}
+
+\textbf{Métrica} & \textbf{Estatística} & \textbf{p-value} \\ 
+RMSE & 113.40 & 0.0000 \\ 
+MAE & 112.56 & 0.0000 \\ 
+MSE & 113.40 & 0.0000 \\ 
+\end{tabular}
+\caption{Resultados do teste de Kruskal-Wallis}
+\end{table}
+\subsection{Teste de Mann-Whitney para RMSE}
+\begin{table}[h]
+\centering
+\begin{tabular}{lcc}
+
+\textbf{Algoritmos} & \textbf{p-value} & \textbf{Significância} \ 
+KNR vs MLP & 0.000 & Sim \\ 
+KNR vs SVM & 0.000 & Sim \\ 
+KNR vs RF & 0.000 & Sim \\ 
+KNR vs GB & 0.000 & Sim \\ 
+KNR vs RLM & 0.000 & Sim \\ 
+MLP vs SVM & 0.000 & Sim \\ 
+MLP vs RF & 0.000 & Sim \\ 
+MLP vs GB & 0.000 & Sim \\ 
+MLP vs RLM & 0.000 & Sim \\ 
+SVM vs RF & 0.000 & Sim \\ 
+SVM vs GB & 0.000 & Sim \\ 
+SVM vs RLM & 0.003 & Sim \\ 
+RF vs GB & 0.000 & Sim \\ 
+RF vs RLM & 0.000 & Sim \\ 
+GB vs RLM & 0.000 & Sim \\ 
+\end{tabular}
+\caption{Resultados do teste de Mann-Whitney para RMSE}
+\end{table}
+\subsection{Teste de Mann-Whitney para MAE}
+\begin{table}[h]
+\centering
+\begin{tabular}{lcc}
+
+\textbf{Algoritmos} & \textbf{p-value} & \textbf{Significância} \ 
+KNR vs MLP & 0.000 & Sim \\ 
+KNR vs SVM & 0.000 & Sim \\ 
+KNR vs RF & 0.000 & Sim \\ 
+KNR vs GB & 0.000 & Sim \\ 
+KNR vs RLM & 0.000 & Sim \\ 
+MLP vs SVM & 0.000 & Sim \\ 
+MLP vs RF & 0.000 & Sim \\ 
+MLP vs GB & 0.000 & Sim \\ 
+MLP vs RLM & 0.000 & Sim \\ 
+SVM vs RF & 0.000 & Sim \\ 
+SVM vs GB & 0.000 & Sim \\ 
+SVM vs RLM & 0.000 & Sim \\ 
+RF vs GB & 0.000 & Sim \\ 
+RF vs RLM & 0.000 & Sim \\ 
+GB vs RLM & 0.000 & Sim \\ 
+\end{tabular}
+\caption{Resultados do teste de Mann-Whitney para MAE}
+\end{table}
+\subsection{Teste de Mann-Whitney para MSE}
+\begin{table}[h]
+\centering
+\begin{tabular}{lcc}
+\textbf{Algoritmos} & \textbf{p-value} & \textbf{Significância} \\ 
+
+KNR vs MLP & 0.000 & Sim \\
+KNR vs SVM & 0.000 & Sim \\
+KNR vs RF & 0.000 & Sim \\
+KNR vs GB & 0.000 & Sim \\
+KNR vs RLM & 0.000 & Sim \\
+MLP vs SVM & 0.000 & Sim \\
+MLP vs RF & 0.000 & Sim \\
+MLP vs GB & 0.000 & Sim \\
+MLP vs RLM & 0.000 & Sim \\
+SVM vs RF & 0.000 & Sim \\
+SVM vs GB & 0.000 & Sim \\
+SVM vs RLM & 0.003 & Sim \\
+RF vs GB & 0.000 & Sim \\
+RF vs RLM & 0.000 & Sim \\
+GB vs RLM & 0.000 & Sim \\
+\end{tabular}
+\caption{Resultados do teste de Mann-Whitney para MSE}
+\end{table}
+
+\end{document}
